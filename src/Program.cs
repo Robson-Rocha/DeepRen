@@ -16,7 +16,14 @@ namespace DeepRen
             app.Conventions.UseDefaultConventions()
                            .UseConstructorInjection(services);
 
-            app.Execute(args);
-        }
+            try
+            {
+                app.Execute(args);
+
+            }
+            catch (CommandParsingException)
+            {
+                // swallow
+            }        }
     }
 }

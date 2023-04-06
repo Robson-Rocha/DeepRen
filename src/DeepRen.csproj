@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
 
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>DeepRen</ToolCommandName>
@@ -12,22 +12,33 @@
     <Product>DeepRen</Product>
     <Description>Utility to rename files, directories, and replace text in file contents using regular expressions</Description>
     <PackageIconUrl>https://github.com/Robson-Rocha/DeepRen/raw/master/docs/deepren-nuget.png</PackageIconUrl>
-    <RepositoryUrl></RepositoryUrl>
+    <RepositoryUrl>https://github.com/Robson-Rocha/DeepRen</RepositoryUrl>
     <PackageProjectUrl>https://github.com/robson-rocha/deepren</PackageProjectUrl>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Copyright>Copyright ©2019 Robson Rocha de Araújo</Copyright>
+    <Copyright>Copyright ©2023 Robson Rocha de Araújo</Copyright>
     <PackageLicenseUrl>https://github.com/Robson-Rocha/DeepRen/blob/master/LICENSE</PackageLicenseUrl>
     <PackageTags>tool, rename</PackageTags>
     <Company>Robson Rocha de Araújo</Company>
-    <AssemblyVersion>1.0.0</AssemblyVersion>
-    <Version>1.0.0</Version>    
+    <AssemblyVersion>2.0.0</AssemblyVersion>
+    <Version>2.0.0</Version>
+    <StartupObject>DeepRen.Program</StartupObject>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>DeepRen</Title>
+    <PackageIcon>deepren-nuget.png</PackageIcon>    
   
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="2.3.4" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
-    <PackageReference Include="Xutils.ConsoleApp" Version="1.0.5" />
+    <None Include="..\docs\deepren-nuget.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="4.0.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
+    <PackageReference Include="Xutils.ConsoleApp" Version="1.0.6" />
   </ItemGroup>
 
 </Project>

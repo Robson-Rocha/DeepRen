@@ -19,8 +19,8 @@ namespace DeepRen
 
     [Command(Name = "DeepRen",
              Description = "Utility to rename files, directories, and replace text in file contents using regular expressions",
-             OptionsComparison = StringComparison.InvariantCultureIgnoreCase,
-             ThrowOnUnexpectedArgument = true)]
+             OptionsComparison = StringComparison.InvariantCultureIgnoreCase, 
+             UnrecognizedArgumentHandling = UnrecognizedArgumentHandling.Throw)]
     [HelpOption("-?")]
     public class Core
     {
@@ -29,36 +29,46 @@ namespace DeepRen
         [Required(ErrorMessage = "The DirectoryPath argument is required")]
         [PathMustExist(ErrorMessage = "The provided path in DirectoryPath argument does not exist")]
         [Argument(0, Name = "DirectoryPath",
-                  Description = "The directory path in which the renamings and replacings shall be made",
+                  Description = "The directory path in which the renamings and replacings shall be made.",
                   ShowInHelpText = true)]
         public string DirectoryPath { get; set; }
 
         [Required(ErrorMessage = "The FindPattern argument is required")]
         [Argument(1, Name = "FindPattern",
-                  Description = "Regular Expression to be found in the paths and contents",
+                  Description = "Regular Expression to be found in the paths and contents.",
                   ShowInHelpText = true)]
         public string FindPattern { get; set; }
 
         [Required(ErrorMessage = "The ReplacementText argument is required")]
         [Argument(2, Name = "ReplacementText",
-                  Description = "Text which will replace the matches of the Find Pattern",
+                  Description = "Text which will replace the matches of the Find Pattern.",
                   ShowInHelpText = true)]
         public string ReplacementText { get; set; }
 
         [Option(Template = "-F|--filter",
-                Description = "File search pattern to filter the file names to be renamed. Defaults to *.*",
-                ValueName = "*.*")]
+                Description = "File search pattern to filter the file names to be renamed.",
+                ValueName = "*.*",
+                ShowInHelpText = true)]
         public string FileSearchPattern { get; set; } = "*.*";
+
+        [Option(Template = "-W|--whatif",
+                Description = "If specified, allows to simulate the changes done, outputting the results without making any change.",
+                ShowInHelpText = true)]
+        public bool WhatIf { get; set; } = false;
 
         public Core(IColoredConsole console)
         {
             _console = console;
             _console.ColoredWriteLine("<w>DeepRen</w>");
-            _console.ColoredWriteLine("<g>Copyright ©2019 - Robson Rocha de Araújo <b>&lt;http://github.com/robson-rocha&gt;</b></g>");
+            _console.ColoredWriteLine("<g>Copyright ©2023 - Robson Rocha de Araújo <b>&lt;http://github.com/robson-rocha&gt;</b></g>");
         }
 
         public void OnExecute(CommandLineApplication app)
         {
+            if (WhatIf)
+            {
+                _console.ColoredWriteLine("<bg c='dy'><k> WhatIf option applied. No changes will be made. </k></bg>");
+            }
             RenameFilesFoldersAndContents(DirectoryPath, FindPattern, ReplacementText, FileSearchPattern);
         }
 
@@ -86,12 +96,18 @@ namespace DeepRen
                         if (subDirectoryPath.ToLowerInvariant() == newSubDirectoryPath.ToLowerInvariant())
                         {
                             string tempSubDirectoryPath = Path.Combine(directoryPath, Regex.Replace(subDirectoryName, findPattern, replaceText + "___TEMP"));
-                            Directory.Move(subDirectoryPath, tempSubDirectoryPath);
-                            Directory.Move(tempSubDirectoryPath, newSubDirectoryPath);
+                            if (!WhatIf)
+                            {
+                                Directory.Move(subDirectoryPath, tempSubDirectoryPath);
+                                Directory.Move(tempSubDirectoryPath, newSubDirectoryPath);
+                            }
                         }
                         else
                         {
-                            Directory.Move(subDirectoryPath, newSubDirectoryPath);
+                            if (!WhatIf)
+                            {
+                                Directory.Move(subDirectoryPath, newSubDirectoryPath);
+                            }
                         }
                         _console.ColoredWriteLine($"Renamed directory <w>\"{subDirectoryPath}\"</w> to <w>\"{newSubDirectoryPath}\"</w>");
                         affected.DirectoriesRenamed++;
@@ -114,7 +130,10 @@ namespace DeepRen
                     if (qtdMatches > 0)
                     {
                         fileContent = Regex.Replace(fileContent, findPattern, replaceText);
-                        File.WriteAllText(filePath, fileContent);
+                        if (!WhatIf)
+                        {
+                            File.WriteAllText(filePath, fileContent);
+                        }
                         _console.ColoredWriteLine($"Replaced <w>{qtdMatches}</w> occurrences of \"<w>{findPattern}</w>\" in contents of \"<w>{filePath}</w>\" with \"<w>{replaceText}\"</w>");
                         affected.ReplacementsMade += qtdMatches;
                         affected.FilesReplaced++;
@@ -122,7 +141,10 @@ namespace DeepRen
                     if (Regex.IsMatch(fileName, findPattern))
                     {
                         string newFilePath = Path.Combine(directoryPath, Regex.Replace(fileName, findPattern, replaceText));
-                        File.Move(filePath, newFilePath);
+                        if (!WhatIf)
+                        {
+                            File.Move(filePath, newFilePath);
+                        }
                         _console.ColoredWriteLine($"Renamed file \"<w>{filePath}</w>\" to \"<w>{newFilePath}</w>\"");
                         affected.FilesRenamed++;
                     }
